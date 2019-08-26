@@ -2,7 +2,7 @@
   <div class="wrap">
     <div class="ipt-box">
       <i class="iconfont icon-fangdajing"></i>
-      <input type="text" v-model="val" @blur="iptFn" placeholder="搜索校园超市商品" />
+      <input type="text" v-model="val" @input="iptFn" placeholder="搜索校园超市商品" />
     </div>
     <div class="content" v-if="dataList.length">
       <ListItem v-for="(item,index) in dataList" :key="index" :ele="item" />
@@ -14,26 +14,31 @@
 </template>
 <script>
 import api from "../../api/index";
+import { setTimeout, clearTimeout } from "timers";
 export default {
   props: {},
   components: {},
   data() {
     return {
       val: "",
-      dataList: []
+      dataList: [],
+      outFn:null
     };
   },
   computed: {},
   methods: {
     iptFn() {
-      if (this.val !== "") {
-        api.carSearch({ search_key: this.val }).then(res => {
-          let { code, data } = res;
-          if (code) {
-            this.dataList = data;
-          }
-        });
-      }
+      this.outFn ? clearTimeout(this.outFn) : '';
+      this.outFn = setTimeout(() => {
+        if (this.val !== "") {
+          api.carSearch({ search_key: this.val }).then(res => {
+            let { code, data } = res;
+            if (code) {
+              this.dataList = data;
+            }
+          });
+        }
+      }, 300);
     }
   },
   created() {},

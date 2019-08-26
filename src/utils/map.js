@@ -1,8 +1,8 @@
-// let map = new AMap.Map()
+let map = new AMap.Map('#app')
 
 export const getPlugin = (pluginname,options) => {
     return new Promise((resolve) => {
-        AMap.plugin(pluginname,() => {
+        map.plugin(pluginname,() => {
             const Oplugins = new AMap[pluginname.split(".")[1]]({
                 ...options
             })

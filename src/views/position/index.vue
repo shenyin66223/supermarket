@@ -3,16 +3,9 @@
     <Header />
     <div class="main">
       <div class="iptBox">
-        <input type="text" v-model.lazy="val" placeholder="搜索地址" />
+        <input type="text" v-model="val" ref='ipt' placeholder="搜索地址" />
       </div>
-      <ul>
-        <li
-          v-for="(item,index) in resultList"
-          :key="index"
-          :class="{'active': index == ind}"
-          @click="clickFn(index,item.name)"
-        >{{item.name}}</li>
-      </ul>
+      <ul ref="show"></ul>
     </div>
   </div>
 </template>
@@ -41,23 +34,16 @@ export default {
   created() {},
   async mounted() {
     this.search = await getPlugin("AMap.Autocomplete", {
-      city: "陵川"
+      city: "陵川",
+      input: this.$refs.ipt,
+      output:this.$refs.show
     });
+    this.search.on('select', (d) => {
+      console.log(d.poi.address)
+      sessionStorage.setItem("position", d.poi.address);
+      this.$router.push("/home");
+    })
   },
-  watch: {
-    val(val) {
-      this.search.search(val, (status, result) => {
-        switch (status) {
-          case "no_data":
-            alert("暂无地址");
-            break;
-          case "complete":
-            this.resultList = result.tips;
-            break;
-        }
-      });
-    }
-  }
 };
 </script>
 <style scoped lang="scss">
@@ -86,23 +72,23 @@ export default {
     }
     ul {
       width: 90%;
-      margin: 2% 5%;
-      background: rgba(0, 0, 0, 0.3);
+      margin: 3px auto;
+      background: yellow;
       border-radius: 10px;
-      li {
-        width: 100%;
-        height: 30px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        padding-left: 8px;
-        box-sizing: border-box;
-        line-height: 30px;
-        &.active {
-          color: palevioletred;
-          background: palegreen;
-        }
-      }
+      // li {
+      //   width: 100%;
+      //   height: 30px;
+      //   white-space: nowrap;
+      //   overflow: hidden;
+      //   text-overflow: ellipsis;
+      //   padding-left: 8px;
+      //   box-sizing: border-box;
+      //   line-height: 30px;
+      //   &.active {
+      //     color: palevioletred;
+      //     background: palegreen;
+      //   }
+      // }
     }
   }
 }

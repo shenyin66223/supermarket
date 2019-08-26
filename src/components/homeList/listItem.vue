@@ -2,7 +2,7 @@
   <div class="con" ref="dl" @click="detailFn(ele.id)">
     <div class="dlBox">
       <dl @touchstart="touchstartFn" @touchmove="touchmoveFn" @touchend="touchendFn">
-        <span v-if="urlPath == '/shopcar'" :class="open ? 'active' : ''" @click="BtnFn"></span>
+        <span v-if="urlPath == '/shopcar'" :class="ele.flag ? 'active' : ''" @click="BtnFn(ele.id)"></span>
         <dt>
           <img :src="ele.cover" alt />
         </dt>
@@ -18,9 +18,9 @@
           </b>
         </dd>
         <p v-if="urlPath == '/shopcar'">
-          <span @click="delFn(ele.id)">-</span>
-          <b>{{num}}</b>
-          <span @click="addFn(ele.id)">+</span>
+          <span @click="countFn(ele.id,false)">-</span>
+          <b>{{ele.count}}</b>
+          <span @click="countFn(ele.id,true)">+</span>
         </p>
         <i v-else class="iconfont icon-gouwuche" @click.stop="addShopFn(ele.id)"></i>
       </dl>
@@ -32,15 +32,14 @@
 import api from "../../api/index";
 import { Message } from "element-ui";
 export default {
-  props: ["ele", "count"],
+  props: ["ele"],
   components: {},
   data() {
     return {
       urlPath: "",
-      open: false,
       isOk: true,
-      num: "null",
       price: 0,
+      id: "",
       pos: {
         startx: "",
         starty: "",
@@ -66,8 +65,6 @@ export default {
             type: "success"
           });
           this.$emit("deleteFn", id);
-          this.open = false;
-          this.allPrice -= this.price;
           this.$refs.dl.style.transform = `translateX(0)`;
         }
       });
@@ -96,43 +93,39 @@ export default {
         changeBox.style.transform = `translateX(0)`;
       }
     },
-    BtnFn() {
-      this.open = !this.open;
+    BtnFn(id) {
+      this.$parent.typeChangeFn(id);
       this.$refs.dl.style.transform = `translateX(0)`;
     },
-    addFn(id) {
-      if (this.open && this.isOk) {
-        let { userid } = JSON.parse(sessionStorage.getItem("userinfo"));
-        this.num = ++this.num;
+    countFn(id, bool) {
+      if (this.isOk) {
         this.isOk = false;
-        api.carAddCar({ user_id: userid, shop_id: id }).then(res => {
-          let { code } = res;
-          if (code) {
-            this.isOk = true;
-          }
-        });
-      }
-    },
-    delFn(id) {
-      if (this.open && this.num > 1 && this.isOk) {
         let { userid } = JSON.parse(sessionStorage.getItem("userinfo"));
-        this.num = --this.num;
-        this.isOk = false;
-        api.carRemoveCar({ user_id: userid, shop_id: id }).then(res => {
-          let { code } = res;
-          if (code) {
-            this.isOk = true;
-          }
-        });
+        if (bool) {
+          this.$parent.countChangeFn(id, bool);
+          api.carAddCar({ user_id: userid, shop_id: id }).then(res => {
+            let { code } = res;
+            if (code) {
+              this.isOk = true;
+            }
+          });
+        } else {
+          this.$parent.countChangeFn(id, bool);
+          api.carRemoveCar({ user_id: userid, shop_id: id }).then(res => {
+            let { code } = res;
+            if (code) {
+              this.isOk = true;
+            }
+          });
+        }
       }
     },
     addShopFn(id) {
       let userinfo = JSON.parse(sessionStorage.getItem("userinfo"));
       if (!userinfo) {
-        alert(`用户未登录,请前往登录界面 ^_^`);
+        alert(`用户未登录,请先登录`);
         this.$router.push("/login");
       } else {
-        // this.$router.push("/shopcar")
         api.carAddCar({ user_id: userinfo.userid, shop_id: id }).then(res => {
           let { code } = res;
           if (code) {
@@ -150,24 +143,8 @@ export default {
     this.urlPath = path;
   },
   mounted() {
-    this.num = this.count;
     this.price = this.ele.price;
-  },
-  watch: {
-    num(newData, oldData) {
-      if (newData > oldData) {
-        this.$parent.allPrice += this.price;
-      } else if (newData < oldData) {
-        this.$parent.allPrice -= this.price;
-      }
-    },
-    open(data) {
-      if (data) {
-        this.$parent.allPrice += this.num * this.price;
-      } else {
-        this.$parent.allPrice -= this.num * this.price;
-      }
-    }
+    this.id = this.ele.id;
   }
 };
 </script>

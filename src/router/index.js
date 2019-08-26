@@ -68,6 +68,11 @@ const router = new Router({
       path: "/position",
       name: "position",
       component: () => import('@/views/position/')
+    },
+    {
+      path: "/auto",
+      name: "auto",
+      component: () => import('@/views/position/auto')
     }
   ]
 })

@@ -38,7 +38,9 @@ export default {
       timeFn : null
     };
   },
-  computed: {},
+  computed: {
+
+  },
   methods: {
     deleteFn() {
       this.$emit("del");
@@ -72,9 +74,11 @@ export default {
     loginFn() {
       api.login({ phone: this.phone, checkcode: this.codeVal }).then(res => {
         let { code, data } = res;
-        sessionStorage.setItem("userinfo", JSON.stringify(data));
         if (code) {
+          sessionStorage.setItem("userinfo", JSON.stringify(data));
           this.$router.push("/home");
+        }else{
+          
         }
       });
     }
@@ -91,6 +95,13 @@ export default {
   },
   mounted() {
     this.$refs.ipt.focus();
+  },
+  watch:{
+    codeVal(data){
+      if(data.length === 6){
+        this.loginFn()
+      }
+    }
   },
   beforeDestroy(){
     this.timeFn && clearInterval(this.timeFn)
@@ -163,7 +174,7 @@ export default {
       width: 100%;
       height: 40px;
       display: flex;
-      justify-content: space-between;
+      justify-content: space-around;
       > input {
         width: 100%;
         height: 40px;

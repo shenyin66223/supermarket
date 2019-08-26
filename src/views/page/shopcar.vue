@@ -3,13 +3,7 @@
     <Header />
     <div class="main" v-if="userinfo">
       <div class="content">
-        <ListItem
-          v-for="(item,index) in dataList"
-          :count="countArr[index]"
-          :key="index"
-          :ele="item"
-          @deleteFn="delFn"
-        />
+        <ListItem v-for="(item,index) in dataList" :key="index" :ele="item" @deleteFn="delFn" />
       </div>
       <div class="footer">
         <p>
@@ -36,7 +30,6 @@ export default {
     return {
       userinfo: "",
       dataList: [],
-      countArr: [],
       allPrice: 0
     };
   },
@@ -44,8 +37,34 @@ export default {
   methods: {
     delFn(id) {
       let ind = this.dataList.findIndex(item => item.id == id);
+      this.allPrice -= this.dataList[ind].price * this.dataList[ind].count;
       this.dataList.splice(ind, 1);
-      this.countArr.splice(ind, 1)
+    },
+    countChangeFn(id, bool) {
+      let ind = this.dataList.findIndex(item => item.id == id);
+      if (bool) {
+        this.dataList[ind].count++;
+        this.allPrice += this.dataList[ind].price;
+      } else {
+        if (this.dataList.count > 1) {
+          this.dataList.count++;
+          this.allPrice += this.dataList[ind].price;
+        }
+      }
+    },
+    typeChangeFn(id) {
+      let ind = this.dataList.findIndex(item => item.id == id);
+      console.log(
+        this.dataList[ind].price,
+        this.dataList[ind].count,
+        this.dataList[ind].price * this.dataList[ind].count
+      );
+      this.dataList[ind].flag = !this.dataList[ind].flag;
+      if (this.dataList[ind].flag) {
+        this.allPrice += this.dataList[ind].price * this.dataList[ind].count;
+      } else {
+        this.allPrice -= this.dataList[ind].price * this.dataList[ind].count;
+      }
     }
   },
   created() {
@@ -54,18 +73,20 @@ export default {
       this.userinfo = userinfo;
       api.carGetCar({ user_id: userinfo.userid }).then(res => {
         let { code, data } = res;
+        console.log(data);
         if (code) {
           let arr = [];
           data.forEach(item => {
+            item.shopdata.flag = false;
+            item.shopdata.count = item.count;
             arr.push(item.shopdata);
             this.dataList = arr;
           });
-          this.countArr = data.map(item => item.count);
         }
       });
     }
   },
-  mounted() {},
+  mounted() {}
 };
 </script>
 <style scoped lang="scss">
