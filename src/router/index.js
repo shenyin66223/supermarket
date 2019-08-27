@@ -83,7 +83,7 @@ router.beforeEach((to, from, next) => {
     if (position) {
       next()
     } else {
-      next("/position")
+      next("/auto")
     }
   } else {
     next()

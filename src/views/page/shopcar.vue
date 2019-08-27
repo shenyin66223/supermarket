@@ -54,11 +54,6 @@ export default {
     },
     typeChangeFn(id) {
       let ind = this.dataList.findIndex(item => item.id == id);
-      console.log(
-        this.dataList[ind].price,
-        this.dataList[ind].count,
-        this.dataList[ind].price * this.dataList[ind].count
-      );
       this.dataList[ind].flag = !this.dataList[ind].flag;
       if (this.dataList[ind].flag) {
         this.allPrice += this.dataList[ind].price * this.dataList[ind].count;

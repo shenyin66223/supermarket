@@ -34,7 +34,7 @@ export default {
   created() {},
   async mounted() {
     this.search = await getPlugin("AMap.Autocomplete", {
-      city: "陵川",
+      city: "北京",
       input: this.$refs.ipt,
       output:this.$refs.show
     });

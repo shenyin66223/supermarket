@@ -18,6 +18,9 @@ httpAxios.interceptors.response.use((res) => {
     return res.data;
 }, (error) => {
     alert(error.response.data.msg)
+    if(error.response.status === 401){
+        location.href('/login')
+    }
     return error.response.data
 })
 
